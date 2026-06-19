@@ -124,7 +124,7 @@ function calculatePrice() {
     const profit = subtotal * 0.30;
 
     // Final price
-    const finalPrice = subtotal + profit;
+    const finalPrice = Math.round((subtotal + profit) * 10) / 10;
 
     document.getElementById("results").innerHTML = `
         <strong>Filament Cost:</strong> £${rule1.toFixed(2)}<br>
