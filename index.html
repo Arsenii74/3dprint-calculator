@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Print Price Calculator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #1e1e2f;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        background: #2c2c44;
+        padding: 30px;
+        border-radius: 15px;
+        width: 420px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-top: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 20px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #45a049;
+    }
+
+    .results {
+        margin-top: 20px;
+        line-height: 1.8;
+    }
+
+    .final {
+        font-size: 28px;
+        font-weight: bold;
+        color: #ffd700;
+    }
+
+    hr {
+        border: 1px solid #555;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>3D Print Price Calculator</h1>
+
+    <label>Model Weight (grams)</label>
+    <input type="number" id="weight" placeholder="e.g. 150">
+
+    <label>Filament Price (£ per gram)</label>
+    <input type="number" id="filamentPrice" step="0.001" value="0.011">
+
+    <label>Print Time</label>
+    <input type="number" id="hours" placeholder="Hours (e.g. 2)">
+    
+    <input type="number" id="minutes" placeholder="Minutes (e.g. 30)">
+
+    <button onclick="calculatePrice()">Calculate Price</button>
+
+    <div class="results" id="results"></div>
+</div>
+
+<script>
+function calculatePrice() {
+    const weight = parseFloat(document.getElementById("weight").value) || 0;
+    const filamentPrice = parseFloat(document.getElementById("filamentPrice").value) || 0.011;
+
+    const hours = parseFloat(document.getElementById("hours").value) || 0;
+    const minutes = parseFloat(document.getElementById("minutes").value) || 0;
+
+    // Convert time → total hours
+    const totalHours = hours + (minutes / 60);
+
+    // Rule 1
+    const rule1 = weight * filamentPrice;
+
+    // Rule 2
+    const rule2 = totalHours * 1.50;
+
+    // Rule 3
+    const rule3 = weight * 0.0375;
+
+    // Subtotal
+    const subtotal = rule1 + rule2 + rule3;
+
+    // Rule 4
+    const profit = subtotal * 0.30;
+
+    // Final price
+    const finalPrice = subtotal + profit;
+
+    document.getElementById("results").innerHTML = `
+        <strong>Rule 1 (Filament Cost):</strong> £${rule1.toFixed(2)}<br>
+        <strong>Rule 2 (Print Time):</strong> £${rule2.toFixed(2)}<br>
+        <strong>Rule 3 (Weight Charge):</strong> £${rule3.toFixed(2)}<br>
+        <strong>Total Time:</strong> ${totalHours.toFixed(2)} hours<br>
+        <strong>Profit (30%):</strong> £${profit.toFixed(2)}<br>
+        <hr>
+        <div class="final">Suggested Sale Price: £${finalPrice.toFixed(2)}</div>
+    `;
+}
+</script>
+
+</body>
+</html>
