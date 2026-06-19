@@ -127,11 +127,10 @@ function calculatePrice() {
     const finalPrice = subtotal + profit;
 
     document.getElementById("results").innerHTML = `
-        <strong>Rule 1 (Filament Cost):</strong> £${rule1.toFixed(2)}<br>
-        <strong>Rule 2 (Print Time):</strong> £${rule2.toFixed(2)}<br>
-        <strong>Rule 3 (Weight Charge):</strong> £${rule3.toFixed(2)}<br>
-        <strong>Total Time:</strong> ${totalHours.toFixed(2)} hours<br>
-        <strong>Profit (30%):</strong> £${profit.toFixed(2)}<br>
+        <strong>Filament Cost:</strong> £${rule1.toFixed(2)}<br>
+        <strong>Print Time:</strong> £${rule2.toFixed(2)}<br>
+        <strong>Post-Processing Charge:</strong> £${rule3.toFixed(2)}<br>
+        <strong>Fail Risk:</strong> £${profit.toFixed(2)}<br>
         <hr>
         <div class="final">Suggested Sale Price: £${finalPrice.toFixed(2)}</div>
     `;
