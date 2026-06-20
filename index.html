@@ -289,14 +289,15 @@ historyList.innerHTML="";
 
 function showSection(section){
 
-history.style.display="none";
-settings.style.display="none";
-gramCalc.style.display="none";
-quote.style.display="none";
+document.getElementById("history").style.display="none";
+document.getElementById("settings").style.display="none";
+document.getElementById("gramCalc").style.display="none";
+document.getElementById("quote").style.display="none";
 
 if(section!="calculator")
 document.getElementById(section).style.display="block";
-
+}
+    
 }
 </script>
 
