@@ -115,13 +115,13 @@ function calculatePrice() {
     const rule2 = totalHours * 1.50;
 
     // Rule 3
-    const rule3 = weight * 0.0375;
+    const rule3 = weight * 0.05;
 
     // Subtotal
     const subtotal = rule1 + rule2 + rule3;
 
     // Rule 4
-    const profit = subtotal * 0.30;
+    const profit = subtotal * 0.25;
 
     // Final price
     const finalPrice = Math.round((subtotal + profit) * 10) / 10;
