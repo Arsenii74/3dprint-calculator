@@ -3,43 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Print Price Calculator</title>
+<title>3D Print Calculator</title>
 
 <style>
 body {
+    margin: 0;
     font-family: Arial, sans-serif;
     background: #184A43;
     color: white;
-    margin: 0;
+    overflow-x: hidden;
 }
 
-/* TOGGLE BUTTON */
+/* MENU BUTTON */
 .menuBtn {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 2000;
-    padding: 10px 14px;
-    border-radius: 8px;
+    top: 12px;
+    left: 12px;
+    z-index: 3000;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     border: none;
-    background: #4CAF50;
+    background: rgba(0,0,0,0.6);
     color: white;
+    font-size: 22px;
     cursor: pointer;
-    font-size: 16px;
+    transition: 0.2s ease;
+}
+
+.menuBtn.hide {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
 }
 
 /* SIDEBAR */
 .sidebar {
     position: fixed;
-    left: -260px; /* hidden */
+    left: -260px;
     top: 0;
     height: 100%;
     width: 220px;
-    background: rgba(0,0,0,.7);
-    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(12px);
     padding: 20px;
-    transition: left 0.3s ease;
-    z-index: 1500;
+    transition: left 0.4s ease;
+    z-index: 2000;
 }
 
 .sidebar.open {
@@ -51,78 +60,72 @@ body {
     margin-bottom: 10px;
     padding: 10px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
-/* MAIN CONTENT */
+/* CENTER LAYOUT */
 .container {
-    margin-left: 20px;
-    padding: 20px;
-    transition: margin-left 0.3s ease;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.container.shift {
-    margin-left: 260px;
-}
-
-/* SECTIONS */
+/* CARD STYLE */
 .section {
     display: none;
+    width: 340px;
+    background: rgba(9,89,80,0.95);
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* HEADINGS CENTERED */
+h2 {
+    text-align: center;
+    margin-top: 0;
 }
 
 /* INPUTS */
-input, textarea, select {
+input, textarea {
     width: 100%;
     padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin: 8px 0;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
+    outline: none;
 }
 
 button {
+    width: 100%;
     padding: 10px;
-    background: #4CAF50;
-    color: white;
     border: none;
     border-radius: 8px;
+    background: #4CAF50;
+    color: white;
     cursor: pointer;
 }
 
-button:hover {
-    background: #45a049;
-}
-
-.results {
-    margin-top: 20px;
-    line-height: 1.8;
-}
-
 .final {
-    font-size: 28px;
+    font-size: 22px;
+    color: gold;
     font-weight: bold;
-    color: #ffd700;
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOGGLE BUTTON -->
-<button class="menuBtn" onclick="toggleSidebar()">☰ Menu</button>
+<!-- MENU BUTTON -->
+<button class="menuBtn" onclick="toggleSidebar()" id="menuBtn">☰</button>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
-    <h2>⚙️ Menu</h2>
-
-    <button onclick="showSection('calculator')">🏠 Calculator</button>
-    <button onclick="showSection('history')">📜 History</button>
-    <button onclick="showSection('settings')">⚙️ Settings</button>
-    <button onclick="showSection('gramCalc')">🧵 Cost / Gram</button>
-    <button onclick="showSection('quote')">🧾 Quote</button>
+<div class="sidebar" id="sidebar">
+    <button onclick="show('calculator')">Calculator</button>
+    <button onclick="show('gram')">Cost/Gram</button>
+    <button onclick="show('quote')">Quote</button>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -130,173 +133,109 @@ button:hover {
 
     <!-- CALCULATOR -->
     <div id="calculator" class="section">
-        <h1>3D Print Price Calculator</h1>
+        <h2>3D Print Calculator</h2>
 
-        <label>Model Weight (grams)</label>
-        <input type="number" id="weight">
+        <input id="weight" placeholder="Weight (g)">
+        <input id="price" placeholder="£ per gram">
+        <input id="hours" placeholder="Hours">
+        <input id="minutes" placeholder="Minutes">
 
-        <label>Filament Price (£ per gram)</label>
-        <input type="number" id="filamentPrice" step="0.001" value="0.011">
+        <button onclick="calc()">Calculate</button>
 
-        <label>Print Time (hours)</label>
-        <input type="number" id="hours">
-
-        <label>Print Time (minutes)</label>
-        <input type="number" id="minutes">
-
-        <button onclick="calculatePrice()">Calculate Price</button>
-
-        <div class="results" id="results"></div>
+        <div id="result"></div>
     </div>
 
-    <!-- HISTORY -->
-    <div id="history" class="section">
-        <h2>📜 History</h2>
-        <div id="historyList"></div>
-        <button onclick="clearHistory()">Clear History</button>
-    </div>
+    <!-- GRAM COST -->
+    <div id="gram" class="section">
+        <h2>Cost per Gram</h2>
 
-    <!-- SETTINGS -->
-    <div id="settings" class="section">
-        <h2>⚙️ Settings</h2>
+        <input id="spoolPrice" placeholder="Spool price £">
+        <input id="spoolWeight" placeholder="Spool weight g">
 
-        <label>Default filament price</label>
-        <input id="defaultFilament" type="number">
-
-        <label>Round to:</label>
-        <select id="rounding">
-            <option>10p</option>
-            <option>50p</option>
-            <option>£1</option>
-        </select>
-    </div>
-
-    <!-- COST PER GRAM -->
-    <div id="gramCalc" class="section">
-        <h2>🧵 Cost Per Gram</h2>
-
-        <label>Spool price (£)</label>
-        <input id="spoolPrice">
-
-        <label>Spool weight (g)</label>
-        <input id="spoolWeight">
-
-        <button onclick="calculateGramCost()">Calculate</button>
+        <button onclick="gram()">Calculate</button>
 
         <div id="gramResult"></div>
     </div>
 
     <!-- QUOTE -->
     <div id="quote" class="section">
-        <h2>🧾 Quote Generator</h2>
+        <h2>Quote Generator</h2>
 
-        <label>Customer Name</label>
-        <input id="customerName">
+        <input id="customer" placeholder="Customer name">
+        <input id="print" placeholder="Print name">
+        <textarea id="notes" placeholder="Notes"></textarea>
 
-        <label>Print Name</label>
-        <input id="printName">
+        <button onclick="quote()">Generate</button>
 
-        <label>Notes</label>
-        <textarea id="notes"></textarea>
-
-        <button onclick="generateQuote()">Generate Quote</button>
-
-        <pre id="quoteText"></pre>
+        <pre id="quoteOut"></pre>
     </div>
 
 </div>
 
 <script>
 
-/* TOGGLE SIDEBAR */
-function toggleSidebar() {
-    const sidebar = document.querySelector(".sidebar");
-    const container = document.querySelector(".container");
+const sidebar = document.getElementById("sidebar");
+const menuBtn = document.getElementById("menuBtn");
 
+/* SIDEBAR TOGGLE */
+function toggleSidebar() {
     sidebar.classList.toggle("open");
-    container.classList.toggle("shift");
+
+    if (sidebar.classList.contains("open")) {
+        menuBtn.classList.add("hide");
+    } else {
+        menuBtn.classList.remove("hide");
+    }
 }
+
+/* CLICK OUTSIDE CLOSE */
+document.addEventListener("click", function(e) {
+    if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+        sidebar.classList.remove("open");
+        menuBtn.classList.remove("hide");
+    }
+});
 
 /* SHOW SECTIONS */
-function showSection(section) {
+function show(id) {
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
 
-    const sections = document.querySelectorAll(".section");
-    sections.forEach(s => s.style.display = "none");
-
-    document.getElementById(section).style.display = "block";
-
-    // auto close sidebar
-    document.querySelector(".sidebar").classList.remove("open");
-    document.querySelector(".container").classList.remove("shift");
+    sidebar.classList.remove("open");
+    menuBtn.classList.remove("hide");
 }
 
-/* START PAGE */
-showSection("calculator");
+/* DEFAULT PAGE */
+show("calculator");
 
 /* CALCULATOR */
-function calculatePrice() {
-    const weight = parseFloat(document.getElementById("weight").value) || 0;
-    const filamentPrice = parseFloat(document.getElementById("filamentPrice").value) || 0.011;
+function calc() {
+    let w = +weight.value || 0;
+    let p = +price.value || 0;
+    let h = +hours.value || 0;
+    let m = +minutes.value || 0;
 
-    const hours = parseFloat(document.getElementById("hours").value) || 0;
-    const minutes = parseFloat(document.getElementById("minutes").value) || 0;
+    let time = h + (m / 60);
+    let cost = (w * p) + (time * 1.5) + (w * 0.05);
+    let final = cost * 1.25;
 
-    const totalHours = hours + (minutes / 60);
-
-    const rule1 = weight * filamentPrice;
-    const rule2 = totalHours * 1.50;
-    const rule3 = weight * 0.05;
-
-    const subtotal = rule1 + rule2 + rule3;
-    const profit = subtotal * 0.25;
-
-    const finalPrice = Math.round((subtotal + profit) * 10) / 10;
-
-    document.getElementById("results").innerHTML = `
-        <strong>Filament Cost:</strong> £${rule1.toFixed(2)}<br>
-        <strong>Print Time:</strong> £${rule2.toFixed(2)}<br>
-        <strong>Post Processing:</strong> £${rule3.toFixed(2)}<br>
-        <strong>Profit:</strong> £${profit.toFixed(2)}<br>
-        <hr>
-        <div class="final">Suggested Price: £${finalPrice.toFixed(2)}</div>
-    `;
-
-    let history = JSON.parse(localStorage.getItem("history")) || [];
-    history.unshift(`£${finalPrice.toFixed(2)}`);
-    localStorage.setItem("history", JSON.stringify(history));
-
-    showHistory();
+    result.innerHTML = `<div class="final">£${final.toFixed(2)}</div>`;
 }
 
-/* HISTORY */
-function showHistory() {
-    let history = JSON.parse(localStorage.getItem("history")) || [];
-    document.getElementById("historyList").innerHTML = history.join("<br>");
-}
+/* GRAM COST */
+function gram() {
+    let p = +spoolPrice.value || 0;
+    let w = +spoolWeight.value || 1;
 
-function clearHistory() {
-    localStorage.removeItem("history");
-    document.getElementById("historyList").innerHTML = "";
-}
-
-/* COST PER GRAM */
-function calculateGramCost() {
-    let price = parseFloat(document.getElementById("spoolPrice").value) || 0;
-    let weight = parseFloat(document.getElementById("spoolWeight").value) || 1;
-
-    let cost = price / weight;
-
-    document.getElementById("gramResult").innerHTML =
-        "Cost per gram = £" + cost.toFixed(3);
+    gramResult.innerHTML = "£" + (p / w).toFixed(3) + " per gram";
 }
 
 /* QUOTE */
-function generateQuote() {
-    document.getElementById("quoteText").innerText =
-        "Customer: " + document.getElementById("customerName").value +
-        "\n\nPrint: " + document.getElementById("printName").value +
-        "\n\nNotes:\n" + document.getElementById("notes").value +
-        "\n\n" + document.getElementById("results").innerText;
+function quote() {
+    quoteOut.innerText =
+        "Customer: " + customer.value +
+        "\nPrint: " + print.value +
+        "\nNotes: " + notes.value;
 }
 
 </script>
