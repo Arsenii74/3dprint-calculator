@@ -4,99 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>3D Print Price Calculator</title>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #184A43;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-    }
-
-    .container {
-        background: #095950;
-        padding: 30px;
-        border-radius: 15px;
-        width: 420px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        margin-top: 15px;
-    }
-
-    input {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        box-sizing: border-box;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 20px;
-        background: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        background: #45a049;
-    }
-
-    .results {
-        margin-top: 20px;
-        line-height: 1.8;
-    }
-
-    .final {
-        font-size: 28px;
-        font-weight: bold;
-        color: #ffd700;
-    }
-
-    hr {
-        border: 1px solid #555;
-    }
-.sidebar{
-position:fixed;
-left:0;
-top:0;
-height:100%;
-width:220px;
-background:rgba(0,0,0,.7);
-backdrop-filter:blur(10px);
-padding:20px;
-overflow-y:auto;
+body {
+    font-family: Arial, sans-serif;
+    background: #184A43;
+    color: white;
+    margin: 0;
 }
 
-.sidebar button{
-width:100%;
-margin-bottom:10px;
+/* TOGGLE BUTTON */
+.menuBtn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 2000;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-.container{
-margin-left:250px;
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    left: -260px; /* hidden */
+    top: 0;
+    height: 100%;
+    width: 220px;
+    background: rgba(0,0,0,.7);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    transition: left 0.3s ease;
+    z-index: 1500;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebar button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* MAIN CONTENT */
+.container {
+    margin-left: 20px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.container.shift {
+    margin-left: 260px;
+}
+
+/* SECTIONS */
+.section {
+    display: none;
+}
+
+/* INPUTS */
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.results {
+    margin-top: 20px;
+    line-height: 1.8;
+}
+
+.final {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffd700;
 }
 </style>
 </head>
+
 <body>
+
+<!-- TOGGLE BUTTON -->
+<button class="menuBtn" onclick="toggleSidebar()">☰ Menu</button>
+
+<!-- SIDEBAR -->
 <div class="sidebar">
     <h2>⚙️ Menu</h2>
 
@@ -104,103 +122,118 @@ margin-left:250px;
     <button onclick="showSection('history')">📜 History</button>
     <button onclick="showSection('settings')">⚙️ Settings</button>
     <button onclick="showSection('gramCalc')">🧵 Cost / Gram</button>
-    <button onclick="showSection('quote')">🧾 Quote Generator</button>
+    <button onclick="showSection('quote')">🧾 Quote</button>
 </div>
+
+<!-- MAIN CONTENT -->
 <div class="container">
-    <h1>3D Print Price Calculator</h1>
 
-    <label>Model Weight (grams)</label>
-    <input type="number" id="weight" placeholder="e.g. 150">
+    <!-- CALCULATOR -->
+    <div id="calculator" class="section">
+        <h1>3D Print Price Calculator</h1>
 
-    <label>Filament Price (£ per gram)</label>
-    <input type="number" id="filamentPrice" step="0.001" value="0.011">
+        <label>Model Weight (grams)</label>
+        <input type="number" id="weight">
 
-    <label>Print Time</label>
-    <input type="number" id="hours" placeholder="Hours (e.g. 2)">
-    
-    <input type="number" id="minutes" placeholder="Minutes (e.g. 30)">
+        <label>Filament Price (£ per gram)</label>
+        <input type="number" id="filamentPrice" step="0.001" value="0.011">
 
-    <button onclick="calculatePrice()">Calculate Price</button>
+        <label>Print Time (hours)</label>
+        <input type="number" id="hours">
 
-    <div class="results" id="results"></div>
+        <label>Print Time (minutes)</label>
+        <input type="number" id="minutes">
 
-    
-<div id="history" style="display:none">
-<h2>📜 History</h2>
+        <button onclick="calculatePrice()">Calculate Price</button>
 
-<div id="historyList"></div>
+        <div class="results" id="results"></div>
+    </div>
 
-<button onclick="clearHistory()">
-Clear History
-</button>
+    <!-- HISTORY -->
+    <div id="history" class="section">
+        <h2>📜 History</h2>
+        <div id="historyList"></div>
+        <button onclick="clearHistory()">Clear History</button>
+    </div>
 
-</div>
-    <div id="settings" style="display:none">
+    <!-- SETTINGS -->
+    <div id="settings" class="section">
+        <h2>⚙️ Settings</h2>
 
-<h2>⚙️ Settings</h2>
+        <label>Default filament price</label>
+        <input id="defaultFilament" type="number">
 
-Default filament price
+        <label>Round to:</label>
+        <select id="rounding">
+            <option>10p</option>
+            <option>50p</option>
+            <option>£1</option>
+        </select>
+    </div>
 
-<input id="defaultFilament" type="number">
+    <!-- COST PER GRAM -->
+    <div id="gramCalc" class="section">
+        <h2>🧵 Cost Per Gram</h2>
 
-Round to:
+        <label>Spool price (£)</label>
+        <input id="spoolPrice">
 
-<select id="rounding">
-<option>10p</option>
-<option>50p</option>
-<option>£1</option>
-</select>
+        <label>Spool weight (g)</label>
+        <input id="spoolWeight">
 
-</div>
-    <div id="gramCalc" style="display:none">
+        <button onclick="calculateGramCost()">Calculate</button>
 
-<h2>🧵 Cost Per Gram</h2>
+        <div id="gramResult"></div>
+    </div>
 
-Spool price (£)
+    <!-- QUOTE -->
+    <div id="quote" class="section">
+        <h2>🧾 Quote Generator</h2>
 
-<input id="spoolPrice">
+        <label>Customer Name</label>
+        <input id="customerName">
 
-Spool weight (g)
+        <label>Print Name</label>
+        <input id="printName">
 
-<input id="spoolWeight">
+        <label>Notes</label>
+        <textarea id="notes"></textarea>
 
-<button onclick="calculateGramCost()">
+        <button onclick="generateQuote()">Generate Quote</button>
 
-Calculate
+        <pre id="quoteText"></pre>
+    </div>
 
-</button>
-
-<div id="gramResult"></div>
-
-</div>
-    <div id="quote" style="display:none">
-
-<h2>🧾 Quote Generator</h2>
-
-Customer Name
-
-<input id="customerName">
-
-Print Name
-
-<input id="printName">
-
-Notes
-
-<textarea id="notes"></textarea>
-
-<button onclick="generateQuote()">
-
-Generate Quote
-
-</button>
-
-<pre id="quoteText"></pre>
-
-</div>
 </div>
 
 <script>
+
+/* TOGGLE SIDEBAR */
+function toggleSidebar() {
+    const sidebar = document.querySelector(".sidebar");
+    const container = document.querySelector(".container");
+
+    sidebar.classList.toggle("open");
+    container.classList.toggle("shift");
+}
+
+/* SHOW SECTIONS */
+function showSection(section) {
+
+    const sections = document.querySelectorAll(".section");
+    sections.forEach(s => s.style.display = "none");
+
+    document.getElementById(section).style.display = "block";
+
+    // auto close sidebar
+    document.querySelector(".sidebar").classList.remove("open");
+    document.querySelector(".container").classList.remove("shift");
+}
+
+/* START PAGE */
+showSection("calculator");
+
+/* CALCULATOR */
 function calculatePrice() {
     const weight = parseFloat(document.getElementById("weight").value) || 0;
     const filamentPrice = parseFloat(document.getElementById("filamentPrice").value) || 0.011;
@@ -208,99 +241,64 @@ function calculatePrice() {
     const hours = parseFloat(document.getElementById("hours").value) || 0;
     const minutes = parseFloat(document.getElementById("minutes").value) || 0;
 
-    // Convert time → total hours
     const totalHours = hours + (minutes / 60);
 
-    // Rule 1
     const rule1 = weight * filamentPrice;
-
-    // Rule 2
     const rule2 = totalHours * 1.50;
-
-    // Rule 3
     const rule3 = weight * 0.05;
 
-    // Subtotal
     const subtotal = rule1 + rule2 + rule3;
-
-    // Rule 4
     const profit = subtotal * 0.25;
 
-    // Final price
     const finalPrice = Math.round((subtotal + profit) * 10) / 10;
 
     document.getElementById("results").innerHTML = `
         <strong>Filament Cost:</strong> £${rule1.toFixed(2)}<br>
         <strong>Print Time:</strong> £${rule2.toFixed(2)}<br>
-        <strong>Post-Processing Charge:</strong> £${rule3.toFixed(2)}<br>
-        <strong>Fail Risk:</strong> £${profit.toFixed(2)}<br>
+        <strong>Post Processing:</strong> £${rule3.toFixed(2)}<br>
+        <strong>Profit:</strong> £${profit.toFixed(2)}<br>
         <hr>
-        <div class="final">Suggested Sale Price: £${finalPrice.toFixed(2)}</div>
+        <div class="final">Suggested Price: £${finalPrice.toFixed(2)}</div>
     `;
-    let item = `£${finalPrice.toFixed(2)}`;
 
-let history = JSON.parse(localStorage.getItem("history")) || [];
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+    history.unshift(`£${finalPrice.toFixed(2)}`);
+    localStorage.setItem("history", JSON.stringify(history));
 
-history.unshift(item);
-
-localStorage.setItem("history", JSON.stringify(history));
-
-showHistory();
-}
-    function calculateGramCost(){
-
-let price=parseFloat(spoolPrice.value)||0;
-
-let weight=parseFloat(spoolWeight.value)||1;
-
-let cost=price/weight;
-
-gramResult.innerHTML=
-"Cost per gram = £"+cost.toFixed(3);
-
+    showHistory();
 }
 
-function generateQuote(){
-
-quoteText.innerText=
-"Customer: "+customerName.value+
-
-"\n\nPrint: "+printName.value+
-
-"\n\n"+results.innerText+
-
-"\n\nNotes:\n"+notes.value;
-
+/* HISTORY */
+function showHistory() {
+    let history = JSON.parse(localStorage.getItem("history")) || [];
+    document.getElementById("historyList").innerHTML = history.join("<br>");
 }
 
-function showHistory(){
-
-let history=JSON.parse(localStorage.getItem("history"))||[];
-
-historyList.innerHTML=history.join("<br>");
-
+function clearHistory() {
+    localStorage.removeItem("history");
+    document.getElementById("historyList").innerHTML = "";
 }
 
-function clearHistory(){
+/* COST PER GRAM */
+function calculateGramCost() {
+    let price = parseFloat(document.getElementById("spoolPrice").value) || 0;
+    let weight = parseFloat(document.getElementById("spoolWeight").value) || 1;
 
-localStorage.removeItem("history");
+    let cost = price / weight;
 
-historyList.innerHTML="";
-
+    document.getElementById("gramResult").innerHTML =
+        "Cost per gram = £" + cost.toFixed(3);
 }
 
-function showSection(section){
-
-document.getElementById("history").style.display="none";
-document.getElementById("settings").style.display="none";
-document.getElementById("gramCalc").style.display="none";
-document.getElementById("quote").style.display="none";
-
-if(section!="calculator")
-document.getElementById(section).style.display="block";
+/* QUOTE */
+function generateQuote() {
+    document.getElementById("quoteText").innerText =
+        "Customer: " + document.getElementById("customerName").value +
+        "\n\nPrint: " + document.getElementById("printName").value +
+        "\n\nNotes:\n" + document.getElementById("notes").value +
+        "\n\n" + document.getElementById("results").innerText;
 }
-    
-}
+
 </script>
 
 </body>
