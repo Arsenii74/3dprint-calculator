@@ -74,10 +74,38 @@
     hr {
         border: 1px solid #555;
     }
+.sidebar{
+position:fixed;
+left:0;
+top:0;
+height:100%;
+width:220px;
+background:rgba(0,0,0,.7);
+backdrop-filter:blur(10px);
+padding:20px;
+overflow-y:auto;
+}
+
+.sidebar button{
+width:100%;
+margin-bottom:10px;
+}
+
+.container{
+margin-left:250px;
+}
 </style>
 </head>
 <body>
+<div class="sidebar">
+    <h2>⚙️ Menu</h2>
 
+    <button onclick="showSection('calculator')">🏠 Calculator</button>
+    <button onclick="showSection('history')">📜 History</button>
+    <button onclick="showSection('settings')">⚙️ Settings</button>
+    <button onclick="showSection('gramCalc')">🧵 Cost / Gram</button>
+    <button onclick="showSection('quote')">🧾 Quote Generator</button>
+</div>
 <div class="container">
     <h1>3D Print Price Calculator</h1>
 
@@ -95,6 +123,79 @@
     <button onclick="calculatePrice()">Calculate Price</button>
 
     <div class="results" id="results"></div>
+<div id="history" style="display:none">
+<h2>📜 History</h2>
+
+<div id="historyList"></div>
+
+<button onclick="clearHistory()">
+Clear History
+</button>
+
+</div>
+    <div id="settings" style="display:none">
+
+<h2>⚙️ Settings</h2>
+
+Default filament price
+
+<input id="defaultFilament" type="number">
+
+Round to:
+
+<select id="rounding">
+<option>10p</option>
+<option>50p</option>
+<option>£1</option>
+</select>
+
+</div>
+    <div id="gramCalc" style="display:none">
+
+<h2>🧵 Cost Per Gram</h2>
+
+Spool price (£)
+
+<input id="spoolPrice">
+
+Spool weight (g)
+
+<input id="spoolWeight">
+
+<button onclick="calculateGramCost()">
+
+Calculate
+
+</button>
+
+<div id="gramResult"></div>
+
+</div>
+    <div id="quote" style="display:none">
+
+<h2>🧾 Quote Generator</h2>
+
+Customer Name
+
+<input id="customerName">
+
+Print Name
+
+<input id="printName">
+
+Notes
+
+<textarea id="notes"></textarea>
+
+<button onclick="generateQuote()">
+
+Generate Quote
+
+</button>
+
+<pre id="quoteText"></pre>
+
+</div>
 </div>
 
 <script>
@@ -134,6 +235,68 @@ function calculatePrice() {
         <hr>
         <div class="final">Suggested Sale Price: £${finalPrice.toFixed(2)}</div>
     `;
+    let item = `£${finalPrice.toFixed(2)}`;
+
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+history.unshift(item);
+
+localStorage.setItem("history", JSON.stringify(history));
+
+showHistory();
+}
+    function calculateGramCost(){
+
+let price=parseFloat(spoolPrice.value)||0;
+
+let weight=parseFloat(spoolWeight.value)||1;
+
+let cost=price/weight;
+
+gramResult.innerHTML=
+"Cost per gram = £"+cost.toFixed(3);
+
+}
+
+function generateQuote(){
+
+quoteText.innerText=
+"Customer: "+customerName.value+
+
+"\n\nPrint: "+printName.value+
+
+"\n\n"+results.innerText+
+
+"\n\nNotes:\n"+notes.value;
+
+}
+
+function showHistory(){
+
+let history=JSON.parse(localStorage.getItem("history"))||[];
+
+historyList.innerHTML=history.join("<br>");
+
+}
+
+function clearHistory(){
+
+localStorage.removeItem("history");
+
+historyList.innerHTML="";
+
+}
+
+function showSection(section){
+
+history.style.display="none";
+settings.style.display="none";
+gramCalc.style.display="none";
+quote.style.display="none";
+
+if(section!="calculator")
+document.getElementById(section).style.display="block";
+
 }
 </script>
 
