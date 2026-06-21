@@ -11,15 +11,13 @@ body {
     font-family: Arial, sans-serif;
     background: #184A43;
     color: white;
-    overflow-x: hidden;
 }
 
-/* MENU BUTTON */
+/* MENU */
 .menuBtn {
     position: fixed;
     top: 12px;
     left: 12px;
-    z-index: 3000;
     width: 44px;
     height: 44px;
     border-radius: 10px;
@@ -28,13 +26,11 @@ body {
     color: white;
     font-size: 22px;
     cursor: pointer;
-    transition: 0.2s ease;
 }
 
 .menuBtn.hide {
     opacity: 0;
     pointer-events: none;
-    transform: scale(0.8);
 }
 
 /* SIDEBAR */
@@ -42,18 +38,15 @@ body {
     position: fixed;
     left: -260px;
     top: 0;
-    height: 100%;
     width: 220px;
+    height: 100%;
     background: rgba(0,0,0,0.4);
     backdrop-filter: blur(12px);
     padding: 20px;
-    transition: left 0.4s ease;
-    z-index: 2000;
+    transition: 0.4s;
 }
 
-.sidebar.open {
-    left: 0;
-}
+.sidebar.open { left: 0; }
 
 .sidebar button {
     width: 100%;
@@ -61,10 +54,9 @@ body {
     padding: 10px;
     border: none;
     border-radius: 8px;
-    cursor: pointer;
 }
 
-/* CENTER LAYOUT */
+/* CENTER */
 .container {
     height: 100vh;
     display: flex;
@@ -79,32 +71,21 @@ body {
     background: rgba(9,89,80,0.95);
     padding: 25px;
     border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-
-    /* 🔥 CENTER EVERYTHING INSIDE */
-    display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-/* HEADINGS */
-h2 {
-    text-align: center;
-    margin-top: 0;
-}
+h2 { text-align: center; }
 
-/* 🔥 CENTER INPUTS PROPERLY */
 input, textarea {
     width: 85%;
     padding: 10px;
     margin: 8px 0;
     border: none;
     border-radius: 8px;
-    outline: none;
     text-align: center;
 }
 
-/* BUTTON */
 button {
     width: 85%;
     padding: 10px;
@@ -115,68 +96,80 @@ button {
     cursor: pointer;
 }
 
+button + button {
+    margin-top: 10px;
+}
+
 .final {
     font-size: 22px;
     color: gold;
-    font-weight: bold;
     text-align: center;
+}
+
+.breakdown {
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* CALCULATOR DEFAULT VIEW FIX */
+#calculator {
+    display: flex;
 }
 </style>
 </head>
 
 <body>
 
-<!-- MENU BUTTON -->
-<button class="menuBtn" onclick="toggleSidebar()" id="menuBtn">☰</button>
+<button class="menuBtn" id="menuBtn" onclick="toggleSidebar()">☰</button>
 
-<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <button onclick="show('calculator')">Calculator</button>
     <button onclick="show('gram')">Cost/Gram</button>
     <button onclick="show('quote')">Quote</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="container">
 
-    <!-- CALCULATOR -->
-    <div id="calculator" class="section">
-        <h2>3D Print Calculator</h2>
+<!-- CALCULATOR -->
+<div id="calculator" class="section">
+    <h2>3D Print Calculator</h2>
 
-        <input id="weight" placeholder="Weight (g)">
-        <input id="price" placeholder="£ per gram">
-        <input id="hours" placeholder="Hours">
-        <input id="minutes" placeholder="Minutes">
+    <input id="weight" placeholder="Weight (g)">
+    <input id="price" placeholder="£ per gram">
+    <input id="hours" placeholder="Hours">
+    <input id="minutes" placeholder="Minutes">
 
-        <button onclick="calc()">Calculate</button>
+    <button onclick="calc()">Calculate</button>
 
-        <div id="result"></div>
-    </div>
+    <div id="result"></div>
+</div>
 
-    <!-- GRAM -->
-    <div id="gram" class="section">
-        <h2>Cost per Gram</h2>
+<!-- COST / GRAM -->
+<div id="gram" class="section">
+    <h2>Cost per Gram</h2>
 
-        <input id="spoolPrice" placeholder="Spool price £">
-        <input id="spoolWeight" placeholder="Spool weight g">
+    <input id="spoolPrice" placeholder="Spool price £">
+    <input id="spoolWeight" placeholder="Spool weight g">
 
-        <button onclick="gram()">Calculate</button>
+    <button onclick="gram()">Calculate</button>
+    <button onclick="setDefaultPrice()">Set Default Price</button>
 
-        <div id="gramResult"></div>
-    </div>
+    <div id="gramResult"></div>
+</div>
 
-    <!-- QUOTE -->
-    <div id="quote" class="section">
-        <h2>Quote Generator</h2>
+<!-- QUOTE -->
+<div id="quote" class="section">
+    <h2>Quote Generator</h2>
 
-        <input id="customer" placeholder="Customer name">
-        <input id="print" placeholder="Print name">
-        <textarea id="notes" placeholder="Notes"></textarea>
+    <input id="customerName" placeholder="Customer name">
+    <input id="printName" placeholder="Print name">
+    <textarea id="notes" placeholder="Notes"></textarea>
 
-        <button onclick="quote()">Generate</button>
+    <button onclick="quote()">Generate Quote</button>
 
-        <pre id="quoteOut"></pre>
-    </div>
+    <pre id="quoteOut"></pre>
+</div>
 
 </div>
 
@@ -185,26 +178,23 @@ button {
 const sidebar = document.getElementById("sidebar");
 const menuBtn = document.getElementById("menuBtn");
 
-/* SIDEBAR TOGGLE */
+let breakdown = {};
+
+/* SIDEBAR */
 function toggleSidebar() {
     sidebar.classList.toggle("open");
-
-    if (sidebar.classList.contains("open")) {
-        menuBtn.classList.add("hide");
-    } else {
-        menuBtn.classList.remove("hide");
-    }
+    menuBtn.classList.toggle("hide");
 }
 
-/* CLICK OUTSIDE CLOSE */
-document.addEventListener("click", function(e) {
+/* CLOSE OUTSIDE */
+document.addEventListener("click", (e) => {
     if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
         sidebar.classList.remove("open");
         menuBtn.classList.remove("hide");
     }
 });
 
-/* SHOW SECTION */
+/* SHOW PAGE */
 function show(id) {
     document.querySelectorAll(".section").forEach(s => s.style.display = "none");
     document.getElementById(id).style.display = "flex";
@@ -213,37 +203,96 @@ function show(id) {
     menuBtn.classList.remove("hide");
 }
 
-/* DEFAULT */
-show("calculator");
+/* STARTUP FIX */
+document.addEventListener("DOMContentLoaded", function () {
+    show("calculator");
 
-/* CALC */
+    const saved = localStorage.getItem("defaultPrice");
+    if (saved) {
+        document.getElementById("price").value = saved;
+    }
+});
+
+/* CALCULATOR */
 function calc() {
-    let w = +weight.value || 0;
-    let p = +price.value || 0;
-    let h = +hours.value || 0;
-    let m = +minutes.value || 0;
+    let w = Number(document.getElementById("weight").value) || 0;
+    let p = Number(document.getElementById("price").value) || 0;
+    let h = Number(document.getElementById("hours").value) || 0;
+    let m = Number(document.getElementById("minutes").value) || 0;
 
     let time = h + (m / 60);
-    let cost = (w * p) + (time * 1.5) + (w * 0.05);
-    let final = cost * 1.25;
 
-    result.innerHTML = `<div class="final">£${final.toFixed(2)}</div>`;
+    let material = w * p;
+    let timeCost = time * 1.5;
+    let post = w * 0.05;
+    let fail = (material + timeCost + post) * 0.25;
+
+    let final = material + timeCost + post + fail;
+
+    breakdown = { material, timeCost, post, fail, final };
+
+    document.getElementById("result").innerHTML =
+    `<div class="breakdown">
+        Material Cost: £${material.toFixed(2)}<br>
+        Print Time: £${timeCost.toFixed(2)}<br>
+        Post-Processing Charge: £${post.toFixed(2)}<br>
+        Fail Risk: £${fail.toFixed(2)}
+    </div>
+    <div class="final">£${final.toFixed(2)}</div>`;
 }
 
-/* GRAM */
+/* COST / GRAM */
 function gram() {
-    let p = +spoolPrice.value || 0;
-    let w = +spoolWeight.value || 1;
+    let p = Number(document.getElementById("spoolPrice").value) || 0;
+    let w = Number(document.getElementById("spoolWeight").value) || 1;
 
-    gramResult.innerHTML = "£" + (p / w).toFixed(3) + " per gram";
+    document.getElementById("gramResult").innerText =
+        "£" + (p / w).toFixed(3) + " per gram";
+}
+
+/* DEFAULT PRICE */
+function setDefaultPrice() {
+    let p = Number(document.getElementById("spoolPrice").value) || 0;
+    let w = Number(document.getElementById("spoolWeight").value) || 1;
+
+    let cost = p / w;
+
+    localStorage.setItem("defaultPrice", cost.toFixed(3));
+    document.getElementById("price").value = cost.toFixed(3);
+
+    alert("Default price saved!");
 }
 
 /* QUOTE */
 function quote() {
-    quoteOut.innerText =
-        "Customer: " + customer.value +
-        "\nPrint: " + print.value +
-        "\nNotes: " + notes.value;
+
+    if (!breakdown.final) {
+        document.getElementById("quoteOut").innerText =
+        "Please calculate first.";
+        return;
+    }
+
+    let customer = document.getElementById("customerName").value || "N/A";
+    let print = document.getElementById("printName").value || "N/A";
+    let notes = document.getElementById("notes").value || "";
+
+    document.getElementById("quoteOut").innerText =
+`Customer: ${customer}
+Print: ${print}
+
+Notes:
+${notes}
+
+-------------------
+BREAKDOWN
+
+Material Cost: £${breakdown.material.toFixed(2)}
+Print Time: £${breakdown.timeCost.toFixed(2)}
+Post-Processing Charge: £${breakdown.post.toFixed(2)}
+Fail Risk: £${breakdown.fail.toFixed(2)}
+
+FINAL PRICE: £${breakdown.final.toFixed(2)}
+`;
 }
 
 </script>
